@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:core_erp/controllers/apps/ecommerce/products_controller.dart';
 import 'package:core_erp/controllers/auth/auth_controller.dart';
+import 'package:core_erp/models/beetroot/questionnaire.dart';
 import 'package:core_erp/models/person.dart';
 // import 'package:core_erp/models/http_responses.dart';
 
@@ -65,6 +66,33 @@ class LocalStorage {
     }
   }
 
+  static Future<bool?> setRecommendatedQuestionnaires(
+      String questionnaires) async {
+    // debugPrint("setAccountCatalogs rawJson $portfolio");
+
+    return preferences.setString(
+        'setRecommendatedQuestionnaires', questionnaires);
+  }
+
+  static Future<List<Questionnaire>?> getRecommendatedQuestionnaires() async {
+    debugPrint("getRecommendatedQuestionnaires from storage");
+    var storedData = preferences.getString("getRecommendatedQuestionnaires");
+    if (storedData != null) {
+      // debugPrint('storedData ${jsonDecode(storedData)}');
+
+      late List<Questionnaire> questionnaires = [];
+      for (var data in jsonDecode(storedData)) {
+        debugPrint('storedData data $data');
+        Questionnaire portfolio = Questionnaire.fromJson(data);
+        questionnaires.add(portfolio);
+      }
+      return questionnaires;
+      // List<Catalog> portfolios = jsonDecode(storedData);
+    } else {
+      return null;
+    }
+  }
+
   static Future<bool?> setAccountOrders(String orders) async {
     return preferences.setString('accountOrders', orders);
   }
@@ -107,6 +135,7 @@ class LocalStorage {
     await preferences.setBool('isLoggedIn', true);
     return preferences.setBool(_loggedInUserKey, true);
   }
+
   static Future<bool> setLoggedInUserToken(String token) async {
     return preferences.setString("authToken", token);
   }
@@ -129,11 +158,10 @@ class LocalStorage {
     }
     return null;
   }
+
   static Future<bool> setCustomizer(ThemeCustomizer themeCustomizer) {
     return preferences.setString(_themeCustomizerKey, themeCustomizer.toJSON());
   }
-
-
 
   static Future<Person?> getUserToken() async {
     var storedData = preferences.getString("authToken");

@@ -5,6 +5,7 @@ import 'package:core_erp/services/url_service.dart';
 import 'package:core_erp/utils/mixins/ui_mixin.dart';
 import 'package:core_erp/views/layouts/left_bar/beetroot.dart';
 import 'package:core_erp/views/layouts/left_bar/fmr_bar.dart';
+import 'package:core_erp/views/layouts/left_bar/geza-marketplace.dart';
 import 'package:core_erp/views/layouts/left_bar/transporter.dart';
 import 'package:core_erp/views/layouts/left_bar/warehouse.dart';
 import 'package:core_erp/views/layouts/no_account.dart';
@@ -56,6 +57,8 @@ class _LeftBarState extends State<LeftBar>
   void initState() {
     super.initState();
     authController = Get.put(AuthController());
+    debugPrint('tradingAs: ${authController.person.value.tradingAs}');
+    debugPrint('accountType:  ${authController.person.value.accountType}');
   }
 
   @override
@@ -77,22 +80,17 @@ class _LeftBarState extends State<LeftBar>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                      onTap: () {
-                        Get.toNamed('/dashboard');
-                      },
-                      child: Image.asset(Images.logoIcon,
-                          height: widget.isCondensed ? 44 : 62)),
-                  // if (!widget.isCondensed)
-                  //   Flexible(
-                  //     fit: FlexFit.loose,
-                  //     child: FxSpacing.width(16),
-                  //   ),
+                  // InkWell(
+                  //     onTap: () {
+                  //       Get.toNamed('/dashboard');
+                  //     },
+                  //     child: Image.asset(Images.logoIcon,
+                  //         height: widget.isCondensed ? 44 : 62)),
                   if (!widget.isCondensed)
                     Flexible(
                       fit: FlexFit.loose,
                       child: FxText.labelLarge(
-                        "eetroot|Admin",
+                        " | Admin",
                         style: GoogleFonts.raleway(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
@@ -109,12 +107,11 @@ class _LeftBarState extends State<LeftBar>
                 child: Obx(() => SingleChildScrollView(
                     physics: PageScrollPhysics(),
                     child: authController.person.value.tradingAs == 'warehouse'
-                        ? BeetrootLeftBar()
+                        ? GezaMarketplaceLeftBar()
                         : authController.person.value.tradingAs == 'farmer'
-                            ? BeetrootLeftBar()
-                            : authController.person.value.tradingAs ==
-                                    'transporter'
-                                ? BeetrootLeftBar()
+                            ? GezaMarketplaceLeftBar()
+                            : authController.person.value.accountType == 'admin'
+                                ? GezaMarketplaceLeftBar()
                                 : NoAccountLeftBar())))
           ],
         ),

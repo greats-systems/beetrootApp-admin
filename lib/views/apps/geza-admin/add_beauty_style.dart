@@ -1,13 +1,51 @@
- Layout(
+import 'dart:typed_data';
+
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:core_erp/controllers/apps/provider-admin/geza-admin_controller.dart';
+import 'package:feather_icons/feather_icons.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:core_erp/controllers/apps/provider-admin/provider-admin_controller.dart';
+import 'package:core_erp/extensions/string.dart';
+import 'package:core_erp/services/theme/app_style.dart';
+import 'package:core_erp/utils/mixins/ui_mixin.dart';
+import 'package:core_erp/views/layouts/layout.dart';
+import 'package:flutter/material.dart';
+import 'package:flutx/flutx.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/instance_manager.dart';
+
+import '../../../controllers/apps/files/file_upload_controller.dart';
+
+class AddBeautyStyle extends StatefulWidget {
+  const AddBeautyStyle({Key? key}) : super(key: key);
+
+  @override
+  State<AddBeautyStyle> createState() => _AddBeautyStyleState();
+}
+
+class _AddBeautyStyleState extends State<AddBeautyStyle>
+    with SingleTickerProviderStateMixin, UIMixin {
+  late ProviderAdminController controller;
+  late GezaAdminController gezaController;
+  late FileUploadController fileUploadController;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(ProviderAdminController());
+    gezaController = Get.put(GezaAdminController());
+    fileUploadController = Get.put(FileUploadController());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Layout(
       child: GetBuilder(
-        init: providerAdminController,
-        builder: (providerAdminController) {
+        init: controller,
+        builder: (controller) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _addTile(),
-              Expanded(child: _listView()),
-              _okButton(),
               Padding(
                 padding: FxSpacing.x(flexSpacing),
                 child: Row(
@@ -21,7 +59,7 @@
                       children: [
                         // FxBreadcrumbItem(name: "UI"),
                         FxBreadcrumbItem(
-                            name: "New Exhibit Questionaire", active: true),
+                            name: "New Beauty Style", active: true),
                       ],
                     ),
                   ],
@@ -59,21 +97,6 @@
                                               AppStyle.buttonRadius.medium,
                                           child: FxText.bodySmall(
                                             'Reset Upload window All',
-                                            color: contentTheme.onSuccess,
-                                          ),
-                                        ),
-                                        Spacer(),
-                                        FxButton(
-                                          onPressed: () {
-                                            addDynamic();
-                                          },
-                                          elevation: 0,
-                                          padding: FxSpacing.xy(20, 16),
-                                          backgroundColor: contentTheme.success,
-                                          borderRadiusAll:
-                                              AppStyle.buttonRadius.medium,
-                                          child: FxText.bodySmall(
-                                            'Add New Question',
                                             color: contentTheme.onSuccess,
                                           ),
                                         ),
@@ -225,7 +248,7 @@
                                                               true
                                                           ? Row(
                                                               children: [
-                                                                Obx(() => providerAdminController
+                                                                Obx(() => controller
                                                                             .isSavingSuccess
                                                                             .value ==
                                                                         true
@@ -266,7 +289,7 @@
                                                                           FxButton(
                                                                             onPressed:
                                                                                 () {
-                                                                              providerAdminController.onAddExhibitQuestionaire();
+                                                                              controller.onAddBeautyStyle();
                                                                             },
                                                                             elevation:
                                                                                 0,
@@ -312,6 +335,79 @@
                                                     size: 16,
                                                   ),
                                                   FxSpacing.width(12),
+                                                  Expanded(
+                                                    child: Obx(() => controller
+                                                                .serverReponseError
+                                                                .value ==
+                                                            true
+                                                        ? AutoSizeText(
+                                                            "${controller.serverReponseErrorMessage}",
+                                                            minFontSize: 8,
+                                                            maxFontSize: 12,
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          )
+                                                        : controller.serverReponseSuccess
+                                                                    .value ==
+                                                                true
+                                                            ? AutoSizeText(
+                                                                "${controller.serverReponseSuccessMessage}",
+                                                                minFontSize: 8,
+                                                                maxFontSize: 12,
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              )
+                                                            : controller.selectedJobRoleCategories
+                                                                        .value ==
+                                                                    'driver'
+                                                                ? AutoSizeText(
+                                                                    "Driver particulars are required. Please upload driver license, profile image and medical records for HR Review",
+                                                                    minFontSize:
+                                                                        8,
+                                                                    maxFontSize:
+                                                                        12,
+                                                                    maxLines: 2,
+                                                                    overflow:
+                                                                        TextOverflow
+                                                                            .ellipsis,
+                                                                  )
+                                                                : controller.selectedJobRoleCategories
+                                                                            .value ==
+                                                                        'grader'
+                                                                    ? AutoSizeText(
+                                                                        "Grader particulars are required. Please upload grading certificates, profile image and last reviewed records successful Exhibit grading",
+                                                                        minFontSize:
+                                                                            8,
+                                                                        maxFontSize:
+                                                                            12,
+                                                                        maxLines:
+                                                                            2,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      )
+                                                                    : AutoSizeText(
+                                                                        "Please upload all relevant files",
+                                                                        minFontSize:
+                                                                            8,
+                                                                        maxFontSize:
+                                                                            12,
+                                                                        maxLines:
+                                                                            2,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      )),
+                                                  ),
+                                                  // FxText.titleMedium(
+
+                                                  //       .tr(),
+                                                  //   fontWeight: 200,
+                                                  //   color: colorScheme
+                                                  //       .primary,
+                                                  // ),
                                                 ],
                                               ),
                                             ],
@@ -324,6 +420,7 @@
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
+                                              FxSpacing.height(30),
                                               FxFlex(
                                                   contentPadding: false,
                                                   children: [
@@ -335,82 +432,7 @@
                                                                   .start,
                                                           children: [
                                                             FxText.labelMedium(
-                                                              "editor".tr(),
-                                                            ),
-                                                            FxSpacing.height(8),
-                                                            DropdownButtonFormField<
-                                                                Department>(
-                                                              dropdownColor:
-                                                                  colorScheme
-                                                                      .background,
-                                                              menuMaxHeight:
-                                                                  200,
-                                                              isDense: true,
-
-                                                              // itemHeight: 40,
-                                                              items:
-                                                                  Department
-                                                                      .values
-                                                                      .map(
-                                                                        (category) =>
-                                                                            DropdownMenuItem<Department>(
-                                                                          value:
-                                                                              category,
-                                                                          child:
-                                                                              FxText.labelMedium(
-                                                                            category.name.capitalize,
-                                                                          ),
-                                                                        ),
-                                                                      )
-                                                                      .toList(),
-                                                              icon: Icon(
-                                                                Icons
-                                                                    .expand_more,
-                                                                size: 20,
-                                                              ),
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                hintText:
-                                                                    "Select dept",
-                                                                hintStyle: FxTextStyle
-                                                                    .bodySmall(
-                                                                        xMuted:
-                                                                            true),
-                                                                border:
-                                                                    outlineInputBorder,
-                                                                enabledBorder:
-                                                                    outlineInputBorder,
-                                                                focusedBorder:
-                                                                    focusedInputBorder,
-                                                                contentPadding:
-                                                                    FxSpacing
-                                                                        .all(
-                                                                            14),
-                                                                isCollapsed:
-                                                                    true,
-                                                                floatingLabelBehavior:
-                                                                    FloatingLabelBehavior
-                                                                        .never,
-                                                              ),
-                                                              onChanged:
-                                                                  (value) {
-                                                                providerAdminController
-                                                                    .onChangeDepartment(
-                                                                        value);
-                                                              },
-                                                            )
-                                                          ],
-                                                        )),
-                                                    FxFlexItem(
-                                                        sizes: 'lg-6 md-12',
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            FxText.labelMedium(
-                                                              "stories_category"
-                                                                  .tr(),
+                                                              "catalog".tr(),
                                                             ),
                                                             FxSpacing.height(8),
                                                             DropdownButtonFormField<
@@ -423,8 +445,8 @@
                                                               isDense: true,
 
                                                               // itemHeight: 40,
-                                                              items: providerAdminController
-                                                                  .jobRoleCategories
+                                                              items: controller
+                                                                  .beautyStylesOptions
                                                                   .map(
                                                                     (category) =>
                                                                         DropdownMenuItem<
@@ -434,7 +456,7 @@
                                                                       child: FxText
                                                                           .labelMedium(
                                                                         category
-                                                                            .capitalize,
+                                                                            .tr(),
                                                                       ),
                                                                     ),
                                                                   )
@@ -447,7 +469,7 @@
                                                               decoration:
                                                                   InputDecoration(
                                                                 hintText:
-                                                                    "Select level",
+                                                                    "Select catalog",
                                                                 hintStyle: FxTextStyle
                                                                     .bodySmall(
                                                                         xMuted:
@@ -470,18 +492,13 @@
                                                               ),
                                                               onChanged:
                                                                   (value) {
-                                                                providerAdminController
-                                                                    .onChangeJobRole(
+                                                                controller
+                                                                    .onChangeBeautyStyleOption(
                                                                         value);
                                                               },
                                                             )
                                                           ],
                                                         )),
-                                                  ]),
-                                              FxSpacing.height(30),
-                                              FxFlex(
-                                                  contentPadding: false,
-                                                  children: [
                                                     FxFlexItem(
                                                         sizes: 'lg-6 md-12',
                                                         child: Column(
@@ -490,201 +507,7 @@
                                                                   .start,
                                                           children: [
                                                             FxText.labelMedium(
-                                                              "title"
-                                                                  .tr()
-                                                                  .capitalizeWords,
-                                                            ),
-                                                            FxSpacing.height(8),
-                                                            TextFormField(
-                                                              validator: providerAdminController
-                                                                  .basicValidator
-                                                                  .getValidation(
-                                                                      'salary'),
-                                                              controller: providerAdminController
-                                                                  .basicValidator
-                                                                  .getController(
-                                                                      'salary'),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .multiline,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                hintText:
-                                                                    "exhibit main title",
-                                                                hintStyle: FxTextStyle
-                                                                    .bodySmall(
-                                                                        xMuted:
-                                                                            true),
-                                                                border:
-                                                                    outlineInputBorder,
-                                                                enabledBorder:
-                                                                    outlineInputBorder,
-                                                                focusedBorder:
-                                                                    focusedInputBorder,
-                                                                prefixIcon: FxContainer
-                                                                    .none(
-                                                                        margin: FxSpacing.right(
-                                                                            12),
-                                                                        alignment:
-                                                                            Alignment
-                                                                                .center,
-                                                                        color: contentTheme
-                                                                            .primary
-                                                                            .withAlpha(
-                                                                                40),
-                                                                        child: FxText
-                                                                            .labelLarge(
-                                                                          "\T",
-                                                                          color:
-                                                                              contentTheme.primary,
-                                                                        )),
-                                                                prefixIconConstraints:
-                                                                    BoxConstraints(
-                                                                        maxHeight:
-                                                                            42,
-                                                                        minWidth:
-                                                                            50,
-                                                                        maxWidth:
-                                                                            50),
-                                                                contentPadding:
-                                                                    FxSpacing
-                                                                        .all(
-                                                                            16),
-                                                                isCollapsed:
-                                                                    true,
-                                                                floatingLabelBehavior:
-                                                                    FloatingLabelBehavior
-                                                                        .never,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        )),
-                                                    FxFlexItem(
-                                                        sizes: 'lg-6 md-12',
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            FxText.labelMedium(
-                                                              "search_key_words"
-                                                                  .tr()
-                                                                  .capitalizeWords,
-                                                            ),
-                                                            FxSpacing.height(8),
-                                                            TextFormField(
-                                                              validator: providerAdminController
-                                                                  .basicValidator
-                                                                  .getValidation(
-                                                                      'search_key_words'),
-                                                              controller: providerAdminController
-                                                                  .basicValidator
-                                                                  .getController(
-                                                                      'search_key_words'),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .multiline,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                hintText:
-                                                                    "money, data, fashion",
-                                                                hintStyle: FxTextStyle
-                                                                    .bodySmall(
-                                                                        xMuted:
-                                                                            true),
-                                                                border:
-                                                                    outlineInputBorder,
-                                                                enabledBorder:
-                                                                    outlineInputBorder,
-                                                                focusedBorder:
-                                                                    focusedInputBorder,
-                                                                prefixIconConstraints:
-                                                                    BoxConstraints(
-                                                                        maxHeight:
-                                                                            42,
-                                                                        minWidth:
-                                                                            50,
-                                                                        maxWidth:
-                                                                            50),
-                                                                contentPadding:
-                                                                    FxSpacing
-                                                                        .all(
-                                                                            16),
-                                                                isCollapsed:
-                                                                    true,
-                                                                floatingLabelBehavior:
-                                                                    FloatingLabelBehavior
-                                                                        .never,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ))
-                                                  ]),
-                                              FxSpacing.height(30),
-                                              FxText.labelMedium(
-                                                "add_quations"
-                                                    .tr()
-                                                    .capitalizeWords,
-                                              ),
-                                              FxFlex(
-                                                  contentPadding: false,
-                                                  children: [
-                                                    FxFlexItem(
-                                                        sizes: 'lg-6 md-12',
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            FxText.labelMedium(
-                                                              "main_quote"
-                                                                  .tr()
-                                                                  .capitalizeWords,
-                                                            ),
-                                                            // _displayWidget
-
-                                                            _textfieldBtn(2)
-                                                          ],
-                                                        )),
-                                                  ]),
-                                              FxSpacing.height(30),
-                                              FxSpacing.height(20),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          FxSpacing.height(20),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );                                             
-                                             
-                                              FxSpacing.height(30),
-                                              FxFlex(
-                                                  contentPadding: false,
-                                                  children: [
-                                                    FxFlexItem(
-                                                        sizes: 'lg-6 md-12',
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            FxText.labelMedium(
-                                                              "allocate_funds_for_task"
+                                                              "price"
                                                                   .tr()
                                                                   .capitalizeWords,
                                                             ),
@@ -693,18 +516,18 @@
                                                               validator: controller
                                                                   .basicValidator
                                                                   .getValidation(
-                                                                      'allocate_funds_for_task'),
+                                                                      'price'),
                                                               controller: controller
                                                                   .basicValidator
                                                                   .getController(
-                                                                      'allocate_funds_for_task'),
+                                                                      'price'),
                                                               keyboardType:
                                                                   TextInputType
                                                                       .multiline,
                                                               decoration:
                                                                   InputDecoration(
                                                                 hintText:
-                                                                    "20.00",
+                                                                    "average price",
                                                                 hintStyle: FxTextStyle
                                                                     .bodySmall(
                                                                         xMuted:
@@ -753,6 +576,11 @@
                                                             ),
                                                           ],
                                                         )),
+                                                  ]),
+                                              FxSpacing.height(30),
+                                              FxFlex(
+                                                  contentPadding: false,
+                                                  children: [
                                                     FxFlexItem(
                                                         sizes: 'lg-6 md-12',
                                                         child: Column(
@@ -761,7 +589,82 @@
                                                                   .start,
                                                           children: [
                                                             FxText.labelMedium(
-                                                              "funds_allocation_notes"
+                                                              "category".tr(),
+                                                            ),
+                                                            FxSpacing.height(8),
+                                                            DropdownButtonFormField<
+                                                                String>(
+                                                              dropdownColor:
+                                                                  colorScheme
+                                                                      .background,
+                                                              menuMaxHeight:
+                                                                  200,
+                                                              isDense: true,
+
+                                                              // itemHeight: 40,
+                                                              items: controller
+                                                                  .beautyStylesOptions
+                                                                  .map(
+                                                                    (category) =>
+                                                                        DropdownMenuItem<
+                                                                            String>(
+                                                                      value:
+                                                                          category,
+                                                                      child: FxText
+                                                                          .labelMedium(
+                                                                        category
+                                                                            .tr(),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                  .toList(),
+                                                              icon: Icon(
+                                                                Icons
+                                                                    .expand_more,
+                                                                size: 20,
+                                                              ),
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                hintText:
+                                                                    "Select category",
+                                                                hintStyle: FxTextStyle
+                                                                    .bodySmall(
+                                                                        xMuted:
+                                                                            true),
+                                                                border:
+                                                                    outlineInputBorder,
+                                                                enabledBorder:
+                                                                    outlineInputBorder,
+                                                                focusedBorder:
+                                                                    focusedInputBorder,
+                                                                contentPadding:
+                                                                    FxSpacing
+                                                                        .all(
+                                                                            14),
+                                                                isCollapsed:
+                                                                    true,
+                                                                floatingLabelBehavior:
+                                                                    FloatingLabelBehavior
+                                                                        .never,
+                                                              ),
+                                                              onChanged:
+                                                                  (value) {
+                                                                controller
+                                                                    .onChangeBeautyStyleOption(
+                                                                        value);
+                                                              },
+                                                            )
+                                                          ],
+                                                        )),
+                                                    FxFlexItem(
+                                                        sizes: 'lg-6 md-12',
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            FxText.labelMedium(
+                                                              "title"
                                                                   .tr()
                                                                   .capitalizeWords,
                                                             ),
@@ -770,18 +673,160 @@
                                                               validator: controller
                                                                   .basicValidator
                                                                   .getValidation(
-                                                                      'funds_allocation_notes'),
+                                                                      'title'),
                                                               controller: controller
                                                                   .basicValidator
                                                                   .getController(
-                                                                      'funds_allocation_notes'),
+                                                                      'title'),
                                                               keyboardType:
                                                                   TextInputType
                                                                       .multiline,
                                                               decoration:
                                                                   InputDecoration(
                                                                 hintText:
-                                                                    "Perform correctly.",
+                                                                    "style main name",
+                                                                hintStyle: FxTextStyle
+                                                                    .bodySmall(
+                                                                        xMuted:
+                                                                            true),
+                                                                border:
+                                                                    outlineInputBorder,
+                                                                enabledBorder:
+                                                                    outlineInputBorder,
+                                                                focusedBorder:
+                                                                    focusedInputBorder,
+                                                                prefixIcon: FxContainer
+                                                                    .none(
+                                                                        margin: FxSpacing.right(
+                                                                            12),
+                                                                        alignment:
+                                                                            Alignment
+                                                                                .center,
+                                                                        color: contentTheme
+                                                                            .primary
+                                                                            .withAlpha(
+                                                                                40),
+                                                                        child: FxText
+                                                                            .labelLarge(
+                                                                          "\T",
+                                                                          color:
+                                                                              contentTheme.primary,
+                                                                        )),
+                                                                prefixIconConstraints:
+                                                                    BoxConstraints(
+                                                                        maxHeight:
+                                                                            42,
+                                                                        minWidth:
+                                                                            50,
+                                                                        maxWidth:
+                                                                            50),
+                                                                contentPadding:
+                                                                    FxSpacing
+                                                                        .all(
+                                                                            16),
+                                                                isCollapsed:
+                                                                    true,
+                                                                floatingLabelBehavior:
+                                                                    FloatingLabelBehavior
+                                                                        .never,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )),
+                                                  ]),
+                                              FxSpacing.height(30),
+                                              FxFlex(
+                                                  contentPadding: false,
+                                                  children: [
+                                                    FxFlexItem(
+                                                        sizes: 'lg-6 md-12',
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            FxText.labelMedium(
+                                                              "main_quote"
+                                                                  .tr()
+                                                                  .capitalizeWords,
+                                                            ),
+                                                            FxSpacing.height(8),
+                                                            TextFormField(
+                                                              validator: controller
+                                                                  .basicValidator
+                                                                  .getValidation(
+                                                                      'main_quote'),
+                                                              controller: controller
+                                                                  .basicValidator
+                                                                  .getController(
+                                                                      'main_quote'),
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .multiline,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                hintText:
+                                                                    "main catch phrase",
+                                                                hintStyle: FxTextStyle
+                                                                    .bodySmall(
+                                                                        xMuted:
+                                                                            true),
+                                                                border:
+                                                                    outlineInputBorder,
+                                                                enabledBorder:
+                                                                    outlineInputBorder,
+                                                                focusedBorder:
+                                                                    focusedInputBorder,
+                                                                prefixIconConstraints:
+                                                                    BoxConstraints(
+                                                                        maxHeight:
+                                                                            42,
+                                                                        minWidth:
+                                                                            50,
+                                                                        maxWidth:
+                                                                            50),
+                                                                contentPadding:
+                                                                    FxSpacing
+                                                                        .all(
+                                                                            16),
+                                                                isCollapsed:
+                                                                    true,
+                                                                floatingLabelBehavior:
+                                                                    FloatingLabelBehavior
+                                                                        .never,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )),
+                                                    FxFlexItem(
+                                                        sizes: 'lg-6 md-12',
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            FxText.labelMedium(
+                                                              "search_key_words"
+                                                                  .tr()
+                                                                  .capitalizeWords,
+                                                            ),
+                                                            FxSpacing.height(8),
+                                                            TextFormField(
+                                                              validator: controller
+                                                                  .basicValidator
+                                                                  .getValidation(
+                                                                      'search_terms'),
+                                                              controller: controller
+                                                                  .basicValidator
+                                                                  .getController(
+                                                                      'search_terms'),
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .multiline,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                hintText:
+                                                                    "money, data, fashion",
                                                                 hintStyle: FxTextStyle
                                                                     .bodySmall(
                                                                         xMuted:
@@ -814,448 +859,344 @@
                                                           ],
                                                         )),
                                                   ]),
-Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      TabBar(
-                                        // onTap: (value) {
-                                        //   debugPrint('value $value');
-                                        //   controller.defaultIndex = value;
-                                        //   controller.defaultTabController
-                                        //       .animateTo((value));
-                                        // },
-                                        controller:
-                                            controller.defaultTabController,
-                                        isScrollable: false,
-
-                                        tabs: [
-                                          Tab(
-                                            icon: FxText.bodyMedium(
-                                              "Service Detail",
-                                              fontWeight:
-                                                  controller.defaultIndex == 0
-                                                      ? 600
-                                                      : 500,
-                                              color:
-                                                  controller.defaultIndex == 0
-                                                      ? contentTheme.primary
-                                                      : null,
-                                            ),
+                                              FxSpacing.height(30),
+                                              FxFlex(
+                                                  contentPadding: false,
+                                                  children: [
+                                                    FxFlexItem(
+                                                        sizes: 'lg-6 md-12',
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            FxText.labelMedium(
+                                                              "description"
+                                                                  .tr()
+                                                                  .capitalizeWords,
+                                                            ),
+                                                            FxSpacing.height(8),
+                                                            TextFormField(
+                                                              maxLines: 2,
+                                                              validator: controller
+                                                                  .basicValidator
+                                                                  .getValidation(
+                                                                      'description'),
+                                                              controller: controller
+                                                                  .basicValidator
+                                                                  .getController(
+                                                                      'description'),
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .multiline,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                hintText:
+                                                                    "description",
+                                                                hintStyle: FxTextStyle
+                                                                    .bodySmall(
+                                                                        xMuted:
+                                                                            true),
+                                                                border:
+                                                                    outlineInputBorder,
+                                                                enabledBorder:
+                                                                    outlineInputBorder,
+                                                                focusedBorder:
+                                                                    focusedInputBorder,
+                                                                prefixIconConstraints:
+                                                                    BoxConstraints(
+                                                                        maxHeight:
+                                                                            42,
+                                                                        minWidth:
+                                                                            50,
+                                                                        maxWidth:
+                                                                            50),
+                                                                contentPadding:
+                                                                    FxSpacing
+                                                                        .all(
+                                                                            16),
+                                                                isCollapsed:
+                                                                    true,
+                                                                floatingLabelBehavior:
+                                                                    FloatingLabelBehavior
+                                                                        .never,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        )),
+                                                    FxFlexItem(
+                                                        sizes: 'lg-6 md-12',
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            FxText.labelMedium(
+                                                              "publish_as_draft"
+                                                                  .tr()
+                                                                  .capitalizeWords,
+                                                            ),
+                                                            FxSpacing.height(8),
+                                                            FxSpacing.height(4),
+                                                            SwitchListTile(
+                                                                value: controller
+                                                                    .publishStatus,
+                                                                onChanged:
+                                                                    controller
+                                                                        .changePublishStatus,
+                                                                controlAffinity:
+                                                                    ListTileControlAffinity
+                                                                        .leading,
+                                                                visualDensity:
+                                                                    getCompactDensity,
+                                                                contentPadding:
+                                                                    FxSpacing
+                                                                        .zero,
+                                                                title: FxText
+                                                                    .bodyMedium(
+                                                                        "is_draft?"
+                                                                            .tr()))
+                                                          ],
+                                                        )),
+                                                  ]),
+                                              FxSpacing.height(30),
+                                              FxFlex(
+                                                  contentPadding: false,
+                                                  children: [
+                                                    FxFlexItem(
+                                                        sizes: 'lg-6 md-12',
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            FxText.labelMedium(
+                                                              "Marketplace Trading Status"
+                                                                  .tr()
+                                                                  .capitalizeWords,
+                                                            ),
+                                                            FxSpacing.height(8),
+                                                            FxSpacing.height(4),
+                                                            SwitchListTile(
+                                                                value: controller
+                                                                    .tradingStatus,
+                                                                onChanged:
+                                                                    controller
+                                                                        .changeTradingStatus,
+                                                                controlAffinity:
+                                                                    ListTileControlAffinity
+                                                                        .leading,
+                                                                visualDensity:
+                                                                    getCompactDensity,
+                                                                contentPadding:
+                                                                    FxSpacing
+                                                                        .zero,
+                                                                title: FxText
+                                                                    .bodyMedium(
+                                                                        "is_trading?"
+                                                                            .tr()))
+                                                          ],
+                                                        )),
+                                                    FxFlexItem(
+                                                        sizes: 'lg-6 md-12',
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            FxText.labelMedium(
+                                                              "Marketplace Trending Status"
+                                                                  .tr()
+                                                                  .capitalizeWords,
+                                                            ),
+                                                            FxSpacing.height(8),
+                                                            FxSpacing.height(4),
+                                                            SwitchListTile(
+                                                                value: controller
+                                                                    .marketplaceTrendingStatus,
+                                                                onChanged:
+                                                                    controller
+                                                                        .changeTrendingStatus,
+                                                                controlAffinity:
+                                                                    ListTileControlAffinity
+                                                                        .leading,
+                                                                visualDensity:
+                                                                    getCompactDensity,
+                                                                contentPadding:
+                                                                    FxSpacing
+                                                                        .zero,
+                                                                title: FxText
+                                                                    .bodyMedium(
+                                                                        "is_trending_Status?"
+                                                                            .tr()))
+                                                          ],
+                                                        )),
+                                                  ]),
+                                              FxSpacing.height(20),
+                                              FxSpacing.height(20),
+                                            ],
                                           ),
-                                          Tab(
-                                            icon: FxText.bodyMedium(
-                                              "Order Detail",
-                                              fontWeight:
-                                                  controller.defaultIndex == 1
-                                                      ? 600
-                                                      : 500,
-                                              color:
-                                                  controller.defaultIndex == 1
-                                                      ? contentTheme.primary
-                                                      : null,
-                                            ),
-                                          ),
-                                          Tab(
-                                            icon: FxText.bodyMedium(
-                                              "Customer Detail",
-                                              fontWeight:
-                                                  controller.defaultIndex == 2
-                                                      ? 600
-                                                      : 500,
-                                              color:
-                                                  controller.defaultIndex == 2
-                                                      ? contentTheme.primary
-                                                      : null,
-                                            ),
-                                          ),
-                                          Tab(
-                                            icon: FxText.bodyMedium(
-                                              "Ledger Detail",
-                                              fontWeight:
-                                                  controller.defaultIndex == 3
-                                                      ? 600
-                                                      : 500,
-                                              color:
-                                                  controller.defaultIndex == 3
-                                                      ? contentTheme.primary
-                                                      : null,
-                                            ),
-                                          ),
-                                        ],
-                                        // controller: _tabController,
-                                        indicatorSize: TabBarIndicatorSize.tab,
-                                      ),
-                                      FxSpacing.height(8),
-                                      SizedBox(
-                                        height: 360,
-                                        child: TabBarView(
-                                          controller:
-                                              controller.defaultTabController,
-                                          children: [
-                                            DataTable(
-                                              sortAscending: true,
-                                              onSelectAll: (value) {},
-                                              headingRowColor:
-                                                  MaterialStatePropertyAll(
-                                                      contentTheme.primary
-                                                          .withAlpha(40)),
-                                              dataRowMaxHeight: 50,
-                                              columns: [
-                                                DataColumn(
-                                                  label: FxText.labelLarge(
-                                                    "Attributes",
-                                                    fontWeight: 600,
-                                                    color: contentTheme.primary,
-                                                  ),
-                                                ),
-                                                DataColumn(
-                                                  label: FxText.labelLarge(
-                                                    "Details",
-                                                    color: contentTheme.primary,
-                                                  ),
-                                                ),
-                                              ],
-                                              rows: [
-                                                buildDataRows(
-                                                  "orderDate",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows("orderStatus",
-                                                    "${controller.order.value.offerItem!.itemCategory}"),
-                                                buildDataRows(
-                                                  "Category",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows(
-                                                  "offerItemCategory",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows(
-                                                  "orderTrackerHash",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows(
-                                                  "Weight",
-                                                  "${controller.order.value.commodityWeight}",
-                                                ),
-                                              ],
-                                            ),
-                                            DataTable(
-                                              sortAscending: true,
-                                              onSelectAll: (value) {},
-                                              headingRowColor:
-                                                  MaterialStatePropertyAll(
-                                                      contentTheme.primary
-                                                          .withAlpha(40)),
-                                              dataRowMaxHeight: 50,
-                                              columns: [
-                                                DataColumn(
-                                                  label: FxText.labelLarge(
-                                                    "Info",
-                                                    fontWeight: 600,
-                                                    color: contentTheme.primary,
-                                                  ),
-                                                ),
-                                                DataColumn(
-                                                  label: FxText.labelLarge(
-                                                    "Details",
-                                                    color: contentTheme.primary,
-                                                  ),
-                                                ),
-                                              ],
-                                              rows: [
-                                                buildDataRows(
-                                                  "orderDate",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows("orderStatus",
-                                                    "${controller.order.value.offerItem!.itemCategory}"),
-                                                buildDataRows(
-                                                  "Category",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows(
-                                                  "offerItemCategory",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows(
-                                                  "orderTrackerHash",
-                                                  "${controller.order.value.offerItem!.itemCategory}",
-                                                ),
-                                                buildDataRows(
-                                                  "Weight",
-                                                  "${controller.order.value.commodityWeight}",
-                                                ),
-                                              ],
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                FxText.titleSmall(
-                                                  "Night Lamp (Yellow)",
-                                                  fontWeight: 600,
-                                                  fontSize: 18,
-                                                ),
-                                                FxSpacing.height(12),
-                                                FxText.bodySmall(
-                                                  controller.dummyTexts[1],
-                                                ),
-                                                FxSpacing.height(8),
-                                                buildFeature("HDR Lights"),
-                                                FxSpacing.height(4),
-                                                buildFeature(
-                                                    "Remote controlled"),
-                                                FxSpacing.height(4),
-                                                buildFeature(
-                                                    "5+ Colors available"),
-                                              ],
-                                            ),
-                                            Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                FxText.titleSmall(
-                                                  "Night Lamp (Yellow)",
-                                                  fontWeight: 600,
-                                                  fontSize: 18,
-                                                ),
-                                                FxSpacing.height(12),
-                                                FxText.bodySmall(
-                                                  controller.dummyTexts[1],
-                                                ),
-                                                FxSpacing.height(8),
-                                                buildFeature("HDR Lights"),
-                                                FxSpacing.height(4),
-                                                buildFeature(
-                                                    "Remote controlled"),
-                                                FxSpacing.height(4),
-                                                buildFeature(
-                                                    "5+ Colors available"),
-                                              ],
-                                            )
-                                          ],
                                         ),
-                                      ),
-                                    ],
-                                  ),  
-  
-  Future<void> onAddNewItem() async {
-    try {
-      debugPrint('onAddNewItem Method');
-      var valData = basicValidator.getData();
-      debugPrint('onAddNewItem common_name ${valData}');
-      isLoading.value = true;
-      var body = {
-        "vendorID": 'admin',
-        "itemName": valData['common_name'],
-        "minimumPrice": valData['minimun_price'],
-        "description": valData['description'],
-        "itemCategory": selectedCategory.name == 'hair'
-            ? 'hair style'
-            : selectedCategory.name == 'cosmetics'
-                ? 'skin & nail treatment'
-                : 'product',
-        "trendingStatus": selectedTrendingStatus.name,
-        "publishStatus": selectedPublishStatus.name,
-        "quantity": "0",
-      };
-
-      debugPrint('onAddNewItem serverUrl $serverUrl');
-
-      Response<dynamic> response = await getConnect.post(
-          '$serverUrl/offer-items/add-offer-items-images', body);
-      ResponseBody responseBody = await processHttpResponse(response);
-      debugPrint('onAddNewItem responseBody $responseBody');
-      debugPrint('onAddNewItem responseBody status ${responseBody.status}');
-
-      isLoading.value = false;
-
-      if (responseBody.status == 500) {
-        errorMessage.value = responseBody.errorMessage!.capitalizeFirst!;
-      } else {
-        if (responseBody.data != '') {
-          var jSonData = convert.jsonDecode(responseBody.data);
-          OfferItem offerItem = await decodeItem(jSonData);
-          offerItemList.value = [...offerItemList, offerItem];
-          Get.toNamed('/apps/ecommerce/products');
-        }
-      }
-      isLoading.value = false;
-    } catch (e) {
-      isLoading(false);
-      formErrors.value = true;
-      formErrorMessage.value = 'Error: ${e.toString()}';
-      debugPrint(e.toString());
-    }
-  }
-
-
-            Divider(
-            height: 36,
-          ),
-          FxText.labelLarge(
-            "Salary Range",
-            muted: true,
-          ),
-          FxSpacing.height(8),
-          FxText.bodySmall(
-            "The Average listing Salary is \$90,000",
-          ),
-          FxSpacing.height(16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              FxText.bodyLarge(
-                "\$${controller.rangeSlider.start.toString()}",
-                fontWeight: 600,
-              ),
-              FxText.bodyLarge(
-                "\$${controller.rangeSlider.end.toString()}",
-                fontWeight: 600,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          FxSpacing.height(20),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-          ),
-          RangeSlider(
-            min: 10000,
-            max: 120000,
-            divisions: 10,
-            labels: RangeLabels(controller.rangeSlider.start.floor().toString(),
-                controller.rangeSlider.end.floor().toString()),
-            values: controller.rangeSlider,
-            onChanged: controller.onChangeRangeSlider,
-            activeColor: theme.sliderTheme.activeTrackColor,
-            inactiveColor: theme.sliderTheme.inactiveTrackColor,
-          )
-          
-          
-import 'package:core_erp/controllers/auth/login_controller.dart';
-import 'package:core_erp/controllers/auth/auth_controller.dart';
-import 'package:core_erp/extensions/extensions.dart';
-import 'package:core_erp/models/http_responses.dart';
-import 'package:core_erp/utils/mixins/ui_mixin.dart';
-import 'package:core_erp/views/layouts/auth_layout.dart';
-import 'package:flutter/material.dart';
-import 'package:flutx/flutx.dart';
-import 'package:get/instance_manager.dart';
-import 'package:get/state_manager.dart';
-
-class VerficationPage extends StatefulWidget {
-  const VerficationPage({super.key});
-
-  @override
-  VerficationPageState createState() => VerficationPageState();
-}
-
-class VerficationPageState extends State<VerficationPage>
-    with SingleTickerProviderStateMixin, UIMixin {
-  late AuthController registerController;
-
-  @override
-  void initState() {
-    super.initState();
-    registerController = Get.put(AuthController());
+          );
+        },
+      ),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AuthLayout(
-        child: GetBuilder<AuthController>(
-            init: registerController,
-            builder: (controller) {
-              return Padding(
-                padding: FxSpacing.all(flexSpacing),
-                child: Form(
-                  key: controller.basicValidator.formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                          child: FxText.titleLarge(
-                        "verification".tr(),
-                        fontWeight: 700,
-                      )),
-                      FxSpacing.height(4),
-                      Center(
-                          child: FxText.bodySmall(
-                        "enter_the_otp_to_login".tr(),
-                        muted: true,
-                      )),
-                      FxSpacing.height(64),
-                      FxText.labelMedium(
-                        "otp".tr().capitalizeWords,
-                      ),
-                      FxSpacing.height(8),
-                      TextFormField(
-                        validator:
-                            controller.basicValidator.getValidation('email'),
-                        controller:
-                            controller.basicValidator.getController('email'),
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                            labelText: "One Time Pin",
-                            labelStyle: FxTextStyle.bodySmall(xMuted: true),
-                            border: outlineInputBorder,
-                            prefixIcon: Icon(
-                              Icons.email_outlined,
-                              size: 20,
-                            ),
-                            contentPadding: FxSpacing.all(16),
-                            isCollapsed: true,
-                            floatingLabelBehavior: FloatingLabelBehavior.never),
-                      ),
-                      FxSpacing.height(16),
-                      FxSpacing.height(28),
-                      Center(
-                        child: FxButton.rounded(
-                          onPressed: registerController.onVerify('0000'),
-                          elevation: 0,
-                          padding: FxSpacing.xy(20, 16),
-                          backgroundColor: contentTheme.primary,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              controller.loading
-                                  ? SizedBox(
-                                      height: 14,
-                                      width: 14,
-                                      child: CircularProgressIndicator(
-                                        color: colorScheme.onPrimary,
-                                        strokeWidth: 1.2,
+  itemImageField(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GetBuilder(
+            init: fileUploadController,
+            builder: (fileUploadController) {
+              return fileUploadController.files.isNotEmpty
+                  ? SizedBox(
+                      height: 300,
+                      width: MediaQuery.of(context).size.width,
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 180,
+                                childAspectRatio: 3 / 2,
+                                crossAxisSpacing: 20,
+                                mainAxisSpacing: 20),
+                        itemCount: fileUploadController.files.length,
+                        itemBuilder: (context, index) {
+                          PlatformFile image =
+                              fileUploadController.files[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.memory(
+                                    Uint8List.fromList(image.bytes!),
+                                    height: 150,
+                                    width: 150,
+                                    // width: MediaQuery.of(context).size.width,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Positioned(
+                                    top: 0,
+                                    child: FxContainer.roundBordered(
+                                      onTap: () => fileUploadController
+                                          .removeFile(image),
+                                      paddingAll: 4,
+                                      child: Icon(
+                                        Icons.close,
+                                        size: 16,
                                       ),
-                                    )
-                                  : Container(),
-                              if (controller.loading) FxSpacing.width(16),
-                              FxText.bodySmall(
-                                'verify'.tr(),
-                                color: contentTheme.onPrimary,
-                              ),
-                            ],
-                          ),
-                        ),
+                                    ))
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                      Center(
-                        child: FxButton.text(
-                          onPressed: () {
-                            LoginDTO loginDTO = LoginDTO(
-                                phone: registerController.authPhone.value);
-                            registerController.onLogin(loginDTO);
-                          },
-                          elevation: 0,
-                          padding: FxSpacing.x(16),
-                          splashColor: contentTheme.secondary.withOpacity(0.1),
-                          child: FxText.labelMedium(
-                            'resend OTP'.tr(),
-                            color: contentTheme.secondary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }));
+                    )
+                  : Column();
+            }),
+      ],
+    );
+  }
+
+  buildProfileDetail(String firstName, String lastName) {
+    return Row(
+      children: [
+        FxText.titleSmall(
+          firstName,
+          fontWeight: 700,
+          muted: true,
+        ),
+        FxSpacing.width(8),
+        FxText.titleSmall(
+          lastName,
+          muted: true,
+        ),
+      ],
+    );
+  }
+
+  buildTextField(String fieldTitle, String hintText) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FxText.labelMedium(
+          fieldTitle,
+        ),
+        FxSpacing.height(8),
+        TextFormField(
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: FxTextStyle.bodySmall(xMuted: true),
+            border: outlineInputBorder,
+            contentPadding: FxSpacing.all(16),
+            isCollapsed: true,
+            floatingLabelBehavior: FloatingLabelBehavior.never,
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildSocialTextField(
+    String fieldTitle,
+    String hintText,
+    IconData icon,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FxText.labelMedium(
+          fieldTitle,
+        ),
+        FxSpacing.height(8),
+        TextFormField(
+          keyboardType: TextInputType.multiline,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: FxTextStyle.bodySmall(xMuted: true),
+            border: outlineInputBorder,
+            enabledBorder: outlineInputBorder,
+            // focusedBorder: focusedInputBorder,
+            prefixIcon: FxContainer.none(
+              margin: FxSpacing.right(12),
+              alignment: Alignment.center,
+              color: contentTheme.primary.withAlpha(40),
+              child: Icon(
+                icon,
+                color: contentTheme.primary,
+                size: 18,
+              ),
+            ),
+            prefixIconConstraints: BoxConstraints(
+              maxHeight: 50,
+              minWidth: 50,
+              maxWidth: 50,
+            ),
+            contentPadding: FxSpacing.all(16),
+            isCollapsed: true,
+            floatingLabelBehavior: FloatingLabelBehavior.never,
+          ),
+        ),
+      ],
+    );
   }
 }
-,

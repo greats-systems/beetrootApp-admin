@@ -128,247 +128,6 @@ class _RegisterPageState extends State<RegisterPage>
                       ),
                     ],
                   ),
-                  FxSpacing.height(20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FxText.labelMedium(
-                              "City".tr(),
-                            ),
-                            FxSpacing.height(8),
-                            DropdownButtonFormField(
-                              dropdownColor: colorScheme.background,
-                              menuMaxHeight: 200,
-                              isDense: true,
-
-                              // itemHeight: 40,
-                              items: populatedCities
-                                  .map(
-                                    (city) => DropdownMenuItem(
-                                      value: city,
-                                      child: FxText.labelMedium(
-                                        city.capitalize,
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                              icon: Icon(
-                                Icons.expand_more,
-                                size: 20,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: "Select city",
-                                hintStyle: FxTextStyle.bodySmall(xMuted: true),
-                                border: outlineInputBorder,
-                                enabledBorder: outlineInputBorder,
-                                focusedBorder: focusedInputBorder,
-                                contentPadding: FxSpacing.all(14),
-                                isCollapsed: true,
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.never,
-                              ),
-                              onChanged: (value) {
-                                controller.onSelectedCity(value!);
-                              },
-                            )
-                          ],
-                        ),
-                      ),
-                      FxSpacing.width(20),
-                      Expanded(
-                        child: Obx(() => Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FxText.labelMedium(
-                                  "Neighbourhood (${controller.populatedNeighbourhoodsNames.length})"
-                                      .tr(),
-                                ),
-                                FxSpacing.height(8),
-                                controller
-                                        .populatedNeighbourhoodsNames.isNotEmpty
-                                    ? DropdownButtonFormField<String>(
-                                        dropdownColor: colorScheme.background,
-                                        menuMaxHeight: 200,
-                                        isDense: true,
-
-                                        // itemHeight: 40,
-                                        items: controller
-                                            .populatedNeighbourhoodsNames
-                                            .map(
-                                              (neighbourhood) =>
-                                                  DropdownMenuItem<String>(
-                                                value: neighbourhood,
-                                                child: FxText.labelMedium(
-                                                  neighbourhood,
-                                                ),
-                                              ),
-                                            )
-                                            .toList(),
-                                        icon: Icon(
-                                          Icons.expand_more,
-                                          size: 20,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: "Select area e.g Mufakose",
-                                          hintStyle: FxTextStyle.bodySmall(
-                                              xMuted: true),
-                                          border: outlineInputBorder,
-                                          enabledBorder: outlineInputBorder,
-                                          focusedBorder: focusedInputBorder,
-                                          contentPadding: FxSpacing.all(14),
-                                          isCollapsed: true,
-                                          floatingLabelBehavior:
-                                              FloatingLabelBehavior.never,
-                                        ),
-                                        onChanged: (value) {
-                                          controller.onSelectedArea(value!);
-                                        },
-                                      )
-                                    : TextFormField(
-                                        validator: controller.basicValidator
-                                            .getValidation('neighbourhood'),
-                                        controller: controller.basicValidator
-                                            .getController('neighbourhood'),
-                                        keyboardType: TextInputType.multiline,
-                                        decoration: InputDecoration(
-                                          hintText: "neighbourhood",
-                                          hintStyle: FxTextStyle.bodySmall(
-                                              xMuted: true),
-                                          border: outlineInputBorder,
-                                          enabledBorder: outlineInputBorder,
-                                          focusedBorder: focusedInputBorder,
-                                          prefixIconConstraints: BoxConstraints(
-                                              maxHeight: 42,
-                                              minWidth: 50,
-                                              maxWidth: 50),
-                                          contentPadding: FxSpacing.all(16),
-                                          isCollapsed: true,
-                                          floatingLabelBehavior:
-                                              FloatingLabelBehavior.never,
-                                        ),
-                                      )
-                              ],
-                            )),
-                      ),
-                    ],
-                  ),
-                  FxSpacing.height(20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FxText.labelMedium(
-                              "Accont Type".tr().capitalizeWords,
-                            ),
-                            FxSpacing.height(4),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FxSpacing.height(8),
-                                DropdownButtonFormField<String>(
-                                  dropdownColor: colorScheme.background,
-                                  menuMaxHeight: 200,
-                                  isDense: true,
-
-                                  // itemHeight: 40,
-                                  items: controller.accontTypes
-                                      .map(
-                                        (category) => DropdownMenuItem<String>(
-                                          value: category,
-                                          child: FxText.labelMedium(
-                                            category.capitalize,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                  icon: Icon(
-                                    Icons.expand_more,
-                                    size: 20,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: "Select Accont Type",
-                                    hintStyle:
-                                        FxTextStyle.bodySmall(xMuted: true),
-                                    border: outlineInputBorder,
-                                    enabledBorder: outlineInputBorder,
-                                    focusedBorder: focusedInputBorder,
-                                    contentPadding: FxSpacing.all(14),
-                                    isCollapsed: true,
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.never,
-                                  ),
-                                  onChanged: (value) {
-                                    controller.onChangeAccontType(value!);
-                                  },
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      FxSpacing.width(20),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FxSpacing.height(4),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FxText.labelMedium(
-                                  "Trading Category".tr(),
-                                ),
-                                FxSpacing.height(8),
-                                DropdownButtonFormField<String>(
-                                  dropdownColor: colorScheme.background,
-                                  menuMaxHeight: 200,
-                                  isDense: true,
-
-                                  // itemHeight: 40,
-                                  items: controller.tradingAsCategories
-                                      .map(
-                                        (category) => DropdownMenuItem<String>(
-                                          value: category,
-                                          child: FxText.labelMedium(
-                                            category.capitalize,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                  icon: Icon(
-                                    Icons.expand_more,
-                                    size: 20,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: "Select Trading Category",
-                                    hintStyle:
-                                        FxTextStyle.bodySmall(xMuted: true),
-                                    border: outlineInputBorder,
-                                    enabledBorder: outlineInputBorder,
-                                    focusedBorder: focusedInputBorder,
-                                    contentPadding: FxSpacing.all(14),
-                                    isCollapsed: true,
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.never,
-                                  ),
-                                  onChanged: (value) {
-                                    controller
-                                        .onChangeTradingAsCategory(value!);
-                                  },
-                                )
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  FxSpacing.height(20),
                   Row(
                     children: [
                       Expanded(
@@ -420,29 +179,38 @@ class _RegisterPageState extends State<RegisterPage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 FxText.labelMedium(
-                                  "Phone Number".tr(),
+                                  "email_password".tr().capitalizeWords,
                                 ),
-                                FxSpacing.height(8),
+                                FxSpacing.height(4),
                                 TextFormField(
                                   validator: controller.basicValidator
-                                      .getValidation('phone'),
+                                      .getValidation('password'),
                                   controller: controller.basicValidator
-                                      .getController('phone'),
-                                  keyboardType: TextInputType.emailAddress,
+                                      .getController('password'),
+                                  keyboardType: TextInputType.visiblePassword,
+                                  obscureText: !controller.showPassword,
                                   decoration: InputDecoration(
-                                    labelText: "+263",
-                                    labelStyle:
-                                        FxTextStyle.bodySmall(xMuted: true),
-                                    border: outlineInputBorder,
-                                    prefixIcon: Icon(
-                                      Icons.person_outline,
-                                      size: 20,
-                                    ),
-                                    contentPadding: FxSpacing.all(16),
-                                    isCollapsed: true,
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.never,
-                                  ),
+                                      labelText: "Password",
+                                      labelStyle:
+                                          FxTextStyle.bodySmall(xMuted: true),
+                                      border: outlineInputBorder,
+                                      prefixIcon: Icon(
+                                        Icons.lock_outline,
+                                        size: 20,
+                                      ),
+                                      suffixIcon: InkWell(
+                                        onTap: controller.onChangeShowPassword,
+                                        child: Icon(
+                                          controller.showPassword
+                                              ? Icons.visibility_outlined
+                                              : Icons.visibility_off_outlined,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      contentPadding: FxSpacing.all(16),
+                                      isCollapsed: true,
+                                      floatingLabelBehavior:
+                                          FloatingLabelBehavior.never),
                                 ),
                               ],
                             )
@@ -452,38 +220,6 @@ class _RegisterPageState extends State<RegisterPage>
                     ],
                   ),
                   FxSpacing.height(20),
-                  FxText.labelMedium(
-                    "email_password".tr().capitalizeWords,
-                  ),
-                  FxSpacing.height(4),
-                  TextFormField(
-                    validator:
-                        controller.basicValidator.getValidation('password'),
-                    controller:
-                        controller.basicValidator.getController('password'),
-                    keyboardType: TextInputType.visiblePassword,
-                    obscureText: !controller.showPassword,
-                    decoration: InputDecoration(
-                        labelText: "Password",
-                        labelStyle: FxTextStyle.bodySmall(xMuted: true),
-                        border: outlineInputBorder,
-                        prefixIcon: Icon(
-                          Icons.lock_outline,
-                          size: 20,
-                        ),
-                        suffixIcon: InkWell(
-                          onTap: controller.onChangeShowPassword,
-                          child: Icon(
-                            controller.showPassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            size: 20,
-                          ),
-                        ),
-                        contentPadding: FxSpacing.all(16),
-                        isCollapsed: true,
-                        floatingLabelBehavior: FloatingLabelBehavior.never),
-                  ),
                   FxSpacing.height(30),
                   Center(
                     child: FxButton.rounded(

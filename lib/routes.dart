@@ -7,6 +7,8 @@ import 'package:core_erp/views/apps/ecommerce/edit_product.dart';
 import 'package:core_erp/views/apps/ecommerce/orders/order_detail.dart';
 import 'package:core_erp/views/apps/ecommerce/orders/orders.dart';
 import 'package:core_erp/views/apps/ecommerce/products.dart';
+import 'package:core_erp/views/apps/geza-admin/add_beauty_style.dart';
+import 'package:core_erp/views/apps/geza-admin/beauty_style.dart';
 import 'package:core_erp/views/apps/provider-admin/add_employee.dart';
 import 'package:core_erp/views/apps/provider-admin/add_truck.dart';
 import 'package:core_erp/views/apps/provider-admin/allocate_vehicle.dart';
@@ -118,10 +120,21 @@ getPageRoute() {
         middlewares: [AuthMiddleware()]),
 
     ///========== Apps =================///
+    ///Geza
+    GetPage(
+        name: '/beauty-styles',
+        page: () => BeautyStylePage(),
+        middlewares: [AuthMiddleware()]),
+    GetPage(
+        name: '/beauty-styles/add_beauty-style',
+        page: () => AddBeautyStyle(),
+        middlewares: [AuthMiddleware()]),
+    // Beetroot
     GetPage(
         name: '/exhibits',
         page: () => ExhibitsPage(),
         middlewares: [AuthMiddleware()]),
+
     GetPage(
         name: '/exhibits/add_exhibit_questionaire',
         page: () => AddExhibitQuestionaire(),

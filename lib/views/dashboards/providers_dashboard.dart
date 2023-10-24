@@ -1,5 +1,6 @@
 import 'package:core_erp/controllers/auth/auth_controller.dart';
 import 'package:core_erp/views/dashboards/providers/beetroot_dashboard.dart';
+import 'package:core_erp/views/dashboards/providers/geza_dashboard%20copy.dart';
 import 'package:core_erp/views/dashboards/providers/transporter_dashboard.dart';
 import 'package:core_erp/views/dashboards/providers/warehouse_dashboard.dart';
 import 'package:core_erp/controllers/dashboard_controller.dart';
@@ -57,7 +58,7 @@ class ProviderDashboardPageState extends State<ProviderDashboardPage>
                     ),
                   ),
                   FxSpacing.height(flexSpacing),
-                  BeetrootDashboard()
+                  GezaAdminDashboard()
                   // authController.person.value.tradingAs == 'warehouse'
                   //     ? WarehouseDashboard()
                   //     : authController.person.value.tradingAs == 'transporter'

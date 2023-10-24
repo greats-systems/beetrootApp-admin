@@ -1,5 +1,9 @@
+import 'package:core_erp/controllers/apps/files/file_upload_controller.dart';
+import 'package:core_erp/controllers/apps/provider-admin/geza-admin_controller.dart';
+import 'package:core_erp/controllers/auth/auth_controller.dart';
+import 'package:core_erp/controllers/auth/socket_controller.dart';
+import 'package:core_erp/controllers/main_controller.dart';
 import 'package:core_erp/services/auth_service.dart';
-import 'package:core_erp/store_binding.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:core_erp/routes.dart';
 import 'package:core_erp/services/localizations/app_localization_delegate.dart';
@@ -23,6 +27,11 @@ Future<void> main() async {
   AppStyle.init();
   await ThemeCustomizer.init();
   await AuthService.getAuthUserAccountType();
+  Get.put(MainController());
+  Get.put(AuthController());
+  Get.put(FileUploadController());
+  Get.put(SocketServiceController());
+  Get.put(GezaAdminController());
   // await Translator.clearTrans();
   // Translator.getUnTrans();
 

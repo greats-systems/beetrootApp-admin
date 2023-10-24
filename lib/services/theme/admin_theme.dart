@@ -45,7 +45,7 @@ class LeftBarTheme {
     this.onBackground = const Color(0xff313a46),
     this.labelColor = const Color(0xff6c757d),
     this.activeItemColor = const Color(0xFFE41C24),
-    this.activeItemBackground = const Color(0xFF000000),
+    this.activeItemBackground = const Color(0xFFE41C24),
   });
 
   //--------------------------------------  Left Bar Theme ----------------------------------------//

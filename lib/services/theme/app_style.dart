@@ -29,7 +29,7 @@ class AppTheme {
   static TextDirection textDirection = TextDirection.ltr;
 
   static Color primaryColor = Color(0xFFE41C24);
-  static Color secondaryColor = Color(0xFF000000);
+  static Color secondaryColor = Color(0xFF7E5FCF);
 
   static ThemeData getThemeFromThemeMode() {
     return ThemeCustomizer.instance.theme == ThemeMode.light
@@ -152,7 +152,7 @@ class AppTheme {
 
     /// Colorscheme
     colorScheme: ColorScheme.fromSeed(
-      seedColor: Color(0xFF000000),
+      seedColor: Color(0xFF7E5FCF),
       background: Color(0xff262729),
       onBackground: Color(0xFFD7D7D7),
       brightness: Brightness.dark,
@@ -246,7 +246,7 @@ class AppStyle {
       cardRadius: AppStyle.cardRadius.medium,
       buttonRadius: AppStyle.buttonRadius.medium,
       defaultBreadCrumbItem:
-          FxBreadcrumbItem(name: 'beetroot', route: '/dashboard'),
+          FxBreadcrumbItem(name: 'admin', route: '/dashboard'),
     ));
     bool isMobile = true;
     try {

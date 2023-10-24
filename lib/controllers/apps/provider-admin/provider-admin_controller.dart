@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:core_erp/controllers/apps/ecommerce/edit_products_controller.dart';
 import 'package:core_erp/controllers/apps/ecommerce/orders_controller.dart';
 import 'package:core_erp/controllers/auth/auth_controller.dart';
+import 'package:core_erp/controllers/auth/socket_controller.dart';
+import 'package:core_erp/models/beetroot/industryOptions.dart';
+import 'package:core_erp/models/beetroot/questionnaire.dart';
 import 'package:core_erp/models/employee.dart';
 import 'package:core_erp/models/order.dart';
 import 'package:core_erp/models/person.dart';
@@ -25,69 +28,6 @@ import 'package:core_erp/controllers/apps/files/file_upload_controller.dart';
 
 import '../../../models/http_responses.dart';
 
-List<Map<String, String>> topTencommercialLogisticsVehicles = [
-  {
-    'name': 'Semi-Truck (Tractor-Trailer)',
-    'type': 'Heavy Truck',
-    'description':
-        'Large trucks consisting of a tractor unit for the driver and a semi-trailer for cargo. Commonly used for long-distance transport.',
-  },
-  {
-    'name': 'Box Truck (Cube Van)',
-    'type': 'Medium Truck',
-    'description':
-        'Box trucks are typically smaller than semi-trucks and have an enclosed cargo area, making them suitable for local and regional deliveries.',
-  },
-  {
-    'name': 'Refrigerated Truck (Reefer Truck)',
-    'type': 'Medium/Heavy Truck',
-    'description':
-        'Equipped with refrigeration units to transport perishable goods at controlled temperatures.',
-  },
-  {
-    'name': 'Flatbed Truck',
-    'type': 'Heavy Truck',
-    'description':
-        'Open cargo area with no sides or roof, ideal for transporting oversized or irregularly shaped cargo.',
-  },
-  {
-    'name': 'Delivery Van',
-    'type': 'Light/Medium Truck',
-    'description':
-        'Smaller vans commonly used by courier services for urban and suburban deliveries.',
-  },
-  {
-    'name': 'Cargo Van',
-    'type': 'Light/Medium Truck',
-    'description':
-        'Versatile vehicles used for transporting goods in various industries, including construction and service trades.',
-  },
-  {
-    'name': 'Dump Truck',
-    'type': 'Heavy Truck',
-    'description':
-        'Designed for transporting bulk materials like sand, gravel, and construction debris, with a hydraulic system for cargo dumping.',
-  },
-  {
-    'name': 'Tanker Truck',
-    'type': 'Heavy Truck',
-    'description':
-        'Used for transporting liquids, including fuel, chemicals, and food-grade products, with specialized tanks to prevent leaks.',
-  },
-  {
-    'name': 'Tow Truck',
-    'type': 'Medium/Heavy Truck',
-    'description':
-        'Used for transporting disabled or damaged vehicles, essential for roadside assistance and recovery services.',
-  },
-  {
-    'name': 'Lorry',
-    'type': 'Heavy Truck',
-    'description':
-        'In some regions, "lorry" is a term used to refer to large trucks or lorries used for various logistical purposes.',
-  },
-];
-
 enum JobRole {
   general,
   specialist,
@@ -105,15 +45,8 @@ enum VehicleCategory {
 }
 
 enum Department {
-  unappointed,
-  hr,
-  finance,
-  admin,
-  logistics,
-  grading,
-  certifying,
-  recieving,
-  agents;
+  minnie,
+  prossy;
 
   const Department();
 }
@@ -162,6 +95,8 @@ enum DeploymentStatus {
 }
 
 class ProviderAdminController extends MainController {
+  final socketServiceController = Get.put(SocketServiceController());
+
   List<Discover> jobCandidate = [];
   late FileUploadController fileUploadController =
       Get.put(FileUploadController());
@@ -177,7 +112,8 @@ class ProviderAdminController extends MainController {
   var selectedJobRole = JobRole.general.obs;
   DeploymentStatus selectedDeploymentStatus = DeploymentStatus.domant;
   VehicleCategory selectedVehicleCategory = VehicleCategory.truck;
-  Department selectedDepartment = Department.unappointed;
+  Department selectedEditor = Department.minnie;
+  Department selectedDepartment = Department.minnie;
   LogisticsDepartment selectedLogisticsDepartment =
       LogisticsDepartment.logistics;
   WarehouseDepartment selectedWarehouseDepartment = WarehouseDepartment.grading;
@@ -206,17 +142,21 @@ class ProviderAdminController extends MainController {
   int get totalQueriedForTaskAssignmentEmpoyees => queriedEmpoyees.length;
   var selectedQueriedForTaskAssignmentEmpoyee = Employee().obs;
   var searchResults = <Employee>[].obs;
-  late List<String> jobRoleCategories = [
-    'general',
-    'specialist',
-    'driver',
+
+  late List<String> beautyStylesOptions = [
+    'hair_style',
+    'skin_care',
+    'nail_care',
+    'body_massage',
     'none'
   ];
+  var selectedBeautyStylesOptions = 'none'.obs;
+  //
+  late List<String> industryCategories = industryOptions;
+  var selectedIndustryCategories = 'none'.obs;
+  //
+  late List<String> jobRoleCategories = industryOptions;
   var selectedJobRoleCategories = 'none'.obs;
-
-  late List<Map<String, String>> commercialLogisticsVehicles =
-      topTencommercialLogisticsVehicles;
-  var selectedcommercialLogisticsVehicles = 'driver'.obs;
 
   var accountVehicles = <Vehicle>[].obs;
   int get totalAccountVeicles => accountVehicles.length;
@@ -225,6 +165,12 @@ class ProviderAdminController extends MainController {
   var serverReponseSuccess = false.obs;
   var serverReponseSuccessMessage = ''.obs;
   var serverReponseErrorMessage = ''.obs;
+  bool marketplaceTrendingStatus = false;
+  bool tradingStatus = false;
+  bool checked = false, publishStatus = false, newsletter = true;
+
+  var currentQuestionnaire = Questionnaire().obs;
+  var currentQuestionnaireLoaded = false.obs;
   @override
   onInit() async {
     super.onInit();
@@ -235,74 +181,41 @@ class ProviderAdminController extends MainController {
             ? dotenv.get("DEVICE_API_URL")
             : dotenv.get("PRODUCTION_API_URL");
     basicValidator.addField(
-      'carrying_weight_min',
-      label: "Carrying Weight Min",
+      'title',
+      label: "title",
       required: true,
       controller: TextEditingController(),
     );
     basicValidator.addField(
-      'carrying_weight_max',
-      label: "Carrying Weight Max",
-      required: true,
-      controller: TextEditingController(),
-    );
-    basicValidator.addField(
-      'engine_number',
-      label: "Engine Number",
-      required: true,
-      controller: TextEditingController(),
-    );
-    basicValidator.addField(
-      'gvt_reg_number',
-      label: "Gvt Reg  Number",
+      'price',
+      label: "price",
       required: true,
       controller: TextEditingController(),
     );
     basicValidator.addField(
       'description',
-      label: "Description",
+      label: "description",
       required: true,
-      controller: TextEditingController(),
-    );
-
-    basicValidator.addField(
-      'email',
-      required: true,
-      label: "Email",
-      validators: [FxEmailValidator()],
       controller: TextEditingController(),
     );
     basicValidator.addField(
-      'phone_number',
+      'main_quote',
+      label: "main_quote",
       required: true,
-      label: 'Phone',
       controller: TextEditingController(),
     );
     basicValidator.addField(
-      'first_name',
+      'title',
+      label: "title",
       required: true,
-      label: 'First Name',
       controller: TextEditingController(),
     );
     basicValidator.addField(
-      'last_name',
+      'search_key_words',
+      label: "search_key_words",
       required: true,
-      label: 'Last Name',
       controller: TextEditingController(),
     );
-    basicValidator.addField(
-      'salary',
-      required: true,
-      label: 'Last Name',
-      controller: TextEditingController(),
-    );
-    basicValidator.addField(
-      'password',
-      required: true,
-      validators: [FxLengthValidator(min: 6)],
-      controller: TextEditingController(),
-    );
-
     Discover.dummyList.then((value) {
       jobCandidate = value.sublist(0, 16);
       update();
@@ -310,6 +223,43 @@ class ProviderAdminController extends MainController {
     await getAllEmployees();
     await getAllVehicles();
     // await getAllProviders();
+  }
+
+  void changeTradingStatus(bool value) {
+    tradingStatus = value;
+
+    update();
+  }
+
+  void changeTrendingStatus(bool value) {
+    marketplaceTrendingStatus = value;
+    update();
+  }
+
+  void changePublishStatus(bool value) {
+    publishStatus = value;
+    update();
+  }
+
+  Future<void> onSaveQuestionaire(String text) async {
+    var valData = basicValidator.getData();
+    debugPrint('onSaveQuestionaire data ${valData}');
+    List<String> qlist = text.split(";");
+    List<String> search_key_words = valData['search_key_words'].split(",");
+    var data = {
+      'editor': selectedEditor.name,
+      'title': valData['title'],
+      'searchTerms': search_key_words,
+      'category': selectedIndustryCategories.value,
+      'questions': qlist
+    };
+    Questionnaire? questionnaire =
+        await socketServiceController.onEmitQuestionnaire(data);
+    if (questionnaire != null) {
+      currentQuestionnaire.value = questionnaire;
+      currentQuestionnaireLoaded.value = true;
+    }
+    debugPrint('onSaveQuestionaire questionnaire ${questionnaire}');
   }
 
   void onSelectedJob(String job) {
@@ -332,6 +282,14 @@ class ProviderAdminController extends MainController {
 
   goToCreateVehicle() {
     Get.toNamed('/transporter/add_vehicle');
+  }
+
+  goToCreatBeautyStyle() {
+    Get.toNamed('/beauty-styles/add_beauty-style');
+  }
+
+  goToBeautyStyles() {
+    Get.toNamed('/beauty-styles');
   }
 
   goToCreatExhibit() {
@@ -358,7 +316,7 @@ class ProviderAdminController extends MainController {
   }
 
   void onChangeDeploymentStatus(DeploymentStatus? value) {
-    debugPrint('onChangeCategory $value');
+    debugPrint('onChangeDeploymentStatus $value');
     selectedDeploymentStatus = value ?? selectedDeploymentStatus;
     update();
   }
@@ -380,14 +338,14 @@ class ProviderAdminController extends MainController {
   }
 
   Future<void> onChangeTaskDeploymentStatus(DeploymentStatus? value) async {
-    debugPrint('onChangeTaskCategory $value');
+    debugPrint('onChangeTaskDeploymentStatus $value');
     selectedDeploymentStatus = value ?? selectedDeploymentStatus;
     await employeesSearchFilter('deploymentStatus', value!.name);
     update();
   }
 
   Future<void> onChangeTaskJobRole(String? value) async {
-    debugPrint('onChangeCategory $value');
+    debugPrint('onChangeTaskJobRole $value');
     selectedJobRoleCategories.value = value ?? selectedJobRoleCategories.value;
     await employeesSearchFilter('jobRole', value!);
     update();
@@ -416,10 +374,107 @@ class ProviderAdminController extends MainController {
     update();
   }
 
-  void onChangeJobRole(String? value) {
+  void onChangeEditor(Department? value) {
+    debugPrint('onChangePublishStatus $value');
+    selectedEditor = value ?? selectedEditor;
+    update();
+  }
+
+  void onChangeCategory(String? value) {
     debugPrint('onChangeCategory $value');
+    selectedIndustryCategories.value =
+        value ?? selectedIndustryCategories.value;
+  }
+
+  void onChangeJobRole(String? value) {
+    debugPrint('onChangeJobRole $value');
     selectedJobRoleCategories.value = value ?? selectedJobRoleCategories.value;
     update();
+  }
+
+  void onChangeBeautyStyleOption(String? value) {
+    debugPrint('onChangeBeautyStyleOption $value');
+    selectedBeautyStylesOptions.value =
+        value ?? selectedBeautyStylesOptions.value;
+    update();
+  }
+
+  onAddBeautyStyle() async {
+    // construct form data
+// Send FormData in POST request to upload file
+    try {
+      isSavingSuccess.value = true;
+      debugPrint('onAddBeautyStyle Method');
+      var valData = basicValidator.getData();
+      debugPrint('onAddBeautyStyle data ${valData}');
+
+      var body = {
+        "authToken": authController.authToken.value.toString(),
+        "category": selectedBeautyStylesOptions.value,
+        "name": valData['title'],
+        "price": valData['price'],
+        "mainQuote": valData['main_quote'],
+        "searchTerms": valData['search_terms'],
+        "description": valData['description'],
+        "catalogID": 'not_set',
+        "tradeStatus": tradingStatus,
+        "trendingStatus": marketplaceTrendingStatus,
+        "publishStatus": publishStatus,
+      };
+      debugPrint('onAddBeautyStyle body $body');
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$apiUrl/service-providers/add-new-beauty_service'),
+      );
+      for (PlatformFile file in fileUploadController.files) {
+        // debugPrint('file.path.toString()  ${file.bytes.toString()}');
+
+        List<int> imgBytes = file.bytes!.toList();
+        // debugPrint('pickedXFile  $imgBytes');
+        final multipartFile = http.MultipartFile.fromBytes('file', imgBytes,
+            contentType: MediaType('image', 'jpeg'),
+            filename: valData['title']);
+        request.files.add(multipartFile);
+      }
+      // debugPrint('multipartFile  ${request.files}');
+
+      request.fields['admin'] = authController.person.value.userID.toString();
+      request.fields['service-item'] = jsonEncode(body);
+
+      request.headers.addAll(
+          {"Content-Type": "multipart/form-data", 'cookie': jsonEncode(body)});
+      final responseStream = await request.send();
+      final response = await http.Response.fromStream(responseStream);
+      debugPrint('onAddBeautyStyle response ${response.body}');
+
+      var decodedResponse = jsonDecode(response.body);
+      var jSonData = jsonDecode(decodedResponse['data']);
+
+      Vehicle vehicle = Vehicle.fromJson(jSonData);
+
+      var vehicleExist = accountVehicles
+          .firstWhereOrNull((vh) => vh.vehicleID == vehicle.vehicleID);
+
+      if (vehicleExist != null) {
+        accountVehicles[accountVehicles
+            .indexWhere((vh) => vh.vehicleID == vehicle.vehicleID)] = vehicle;
+      } else {
+        accountVehicles.value = [...accountVehicles, vehicle];
+      }
+
+      Timer(const Duration(seconds: 1), () {
+        isSavingSuccess.value = false;
+        Get.toNamed('/vehicles');
+      });
+      isSavingSuccess.value = false;
+
+      // Do something with the response
+    } catch (err) {
+      // Handle errors
+      isSavingSuccess.value = false;
+
+      print(err);
+    }
   }
 
   onAddNewTruck() async {
@@ -498,6 +553,7 @@ class ProviderAdminController extends MainController {
   }
 
   onAddExhibitQuestionaire() {}
+
   onAddExhibit() async {
     // construct form data
 // Send FormData in POST request to upload file

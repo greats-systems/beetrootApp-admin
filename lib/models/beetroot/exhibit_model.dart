@@ -1,90 +1,74 @@
-
-import 'package:core_erp/models/beetroot/conversation_model.dart';
+import 'package:core_erp/models/beetroot/editor.dart';
+import 'package:core_erp/models/beetroot/questionnaire.dart';
+import 'package:core_erp/models/person.dart';
 
 class Exhibit {
-  String? image;
-  String? entreprenuerImage;
-  String? interviewerImage;
-  String? mainImage;
-  String? onConversationImage;
-  String? onClodeImage;
-  String? title;
-  String? description;
-  String? publishedby;
-  String? entreprenuer;
-  String? category;
-  List<String>? searchKeyWords;
-  String? mainQuote;
-  String? date;
-  String? views;
-  String? comments;
-  String? type;
-  List<Conversation> conversation;
+  String? id;
+  DateTime? createdDate;
+  DateTime? updatedDate;
+  DateTime? deletedDate;
+  Person? client;
+  Editor? editor;
+  Questionnaire? questionnaire;
+  List<Question>? questions;
 
   Exhibit({
-    required this.image,
-    required this.entreprenuerImage,
-    required this.interviewerImage,
-    required this.mainImage,
-    required this.onConversationImage,
-    required this.onClodeImage,
-    required this.title,
-    required this.description,
-    required this.publishedby,
-    required this.entreprenuer,
-    required this.category,
-    required this.searchKeyWords,
-    required this.mainQuote,
-    required this.date,
-    required this.views,
-    required this.comments,
-    required this.type,
-    required this.conversation,
+    this.id,
+    this.createdDate,
+    this.updatedDate,
+    this.deletedDate,
+    this.client,
+    this.editor,
+    this.questionnaire,
+    this.questions,
   });
 
-  factory Exhibit.fromJson(Map<String, dynamic> json) {
-    return Exhibit(
-      image: json['image'],
-      entreprenuerImage: json['entreprenuerImage'],
-      interviewerImage: json['interviewerImage'],
-      mainImage: json['mainImage'],
-      onConversationImage: json['onConversationImage'],
-      onClodeImage: json['onClodeImage'],
-      title: json['title'],
-      description: json['description'],
-      publishedby: json['publishedby'],
-      entreprenuer: json['entreprenuer'],
-      category: json['category'],
-      searchKeyWords: List<String>.from(json['searchKeyWords']),
-      mainQuote: json['mainQuote'],
-      date: json['date'],
-      views: json['views'],
-      comments: json['comments'],
-      type: json['type'],
-      conversation: List<Conversation>.from(json['conversation']),
-    );
-  }
-
+  // Serialization (toJson) method
   Map<String, dynamic> toJson() {
     return {
-      'image': image,
-      'entreprenuerImage': entreprenuerImage,
-      'interviewerImage': interviewerImage,
-      'mainImage': mainImage,
-      'onConversationImage': onConversationImage,
-      'onClodeImage': onClodeImage,
-      'title': title,
-      'description': description,
-      'publishedby': publishedby,
-      'entreprenuer': entreprenuer,
-      'category': category,
-      'searchKeyWords': searchKeyWords,
-      'mainQuote': mainQuote,
-      'date': date,
-      'views': views,
-      'comments': comments,
-      'type': type,
-      'conversation': conversation,
+      'id': id,
+      'createdDate': createdDate!.toIso8601String(),
+      'updatedDate': updatedDate!.toIso8601String(),
+      'deletedDate': deletedDate!.toIso8601String(),
+      'client': client!.toJson(), // Assuming User has a toJson method.
+      'editor': editor!.toJson(), // Assuming Editor has a toJson method.
+      'questionnaire': questionnaire!
+          .toJson(), // Assuming Questionnaire has a toJson method.
+      'questions': questions!
+          .map((question) => question.toJson())
+          .toList(), // Assuming Question has a toJson method.
     };
   }
+
+  // Deserialization (fromJson) factory method
+  factory Exhibit.fromJson(Map<String, dynamic> json) {
+    return Exhibit(
+      id: json['id'],
+      createdDate: json['createdDate'] != null
+          ? DateTime.parse(json['createdDate'])
+          : null,
+      updatedDate: json['updatedDate'] != null
+          ? DateTime.parse(json['updatedDate'])
+          : null,
+      deletedDate: json['updatedDate'] != null
+          ? DateTime.parse(json['updatedDate'])
+          : null,
+      client: json['client'] != null
+          ? Person.fromJson(json['client'])
+          : null, // Assuming User has a fromJson factory method.
+      editor: json['editor'] != null
+          ? Editor.fromJson(json['editor'])
+          : null, // Assuming Editor has a fromJson factory method.
+      questionnaire: json['questionnaire'] != null
+          ? Questionnaire.fromJson(json['questionnaire'])
+          : null, // Assuming Questionnaire has a fromJson factory method.
+      questions: json['questions'] != null
+          ? (json['questions'] as List)
+              .map((questionJson) => Question.fromJson(questionJson))
+              .toList()
+          : null, // Assuming Question has a fromJson factory method.
+    );
+  }
 }
+
+// You need to implement similar toJson and fromJson methods for User, Editor, Questionnaire, and Question classes.

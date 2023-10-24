@@ -79,33 +79,16 @@ class AuthController extends MainController {
   late List<String> accontTypes = ['individual', 'business', 'government'];
   var selectedAccontType = 'individual'.obs;
   late List<String> tradingAsCategories = [
-    'farmer',
-    'warehouse',
-    'buyer',
-    'transporter',
-    'auction House'
+    'admin',
+    'provider',
   ];
-  var selectedTradingAsCategory = 'farmer'.obs;
+  var selectedTradingAsCategory = 'admin'.obs;
   List<String> providerSpecialization = ['seeds', 'machinery', 'services'];
   @override
   onInit() async {
     super.onInit();
     debugPrint('======AuthController----');
     await initFormData();
-
-    debugPrint('MainController AuthService.authToken ${AuthService.authToken}');
-    await AuthService.getAuthToken();
-    await AuthService.getAuthUserAccountType();
-
-    socket = IO.io(
-        apiUrl.value,
-        OptionBuilder()
-            .setQuery({'cookie': 'barrs', 'token': AuthService.authToken})
-            .setTransports(['websocket'])
-            .disableAutoConnect()
-            .build());
-    socket.connect();
-    await connectAndListen();
   }
 
   onSelectedProvider(Provider account) {
@@ -113,30 +96,6 @@ class AuthController extends MainController {
     selectedQueriedProvider.value = account;
     selectedQueriedProvidereID.value = account.provider.userID!;
     debugPrint('Selected bookin $selectedQueriedProvider');
-  }
-
-  changeOnlineState(bool status) async {
-    debugPrint('before change ${isonline.value}');
-    if (status == true) {
-      debugPrint(
-          'changeOnlineState status == true ${person.value.userID.toString()}');
-      socket.emit('notify-online-status', {
-        "content": 'online',
-        "senderID": person.value.userID.toString(),
-        "senderPhone": person.value.phone.toString(),
-      });
-    }
-    if (status == false) {
-      debugPrint(
-          'changeOnlineState status == true ${person.value.userID.toString()}');
-      socket.emit('notify-online-status', {
-        "content": 'offline',
-        "senderID": person.value.userID.toString(),
-        "senderPhone": person.value.phone.toString(),
-      });
-    }
-    isonline.value = status;
-    debugPrint('after change ${isonline.value}');
   }
 
   Future<void> onRegister() async {
@@ -191,12 +150,12 @@ class AuthController extends MainController {
         var body = {
           "firstName": valData['first_name'],
           "lastName": valData['last_name'],
-          "phone": valData['phone'],
+          "phone": '0101',
           "email": valData['email'],
-          "neighbourhood": selectedNeighbourhood.value,
-          "city": selectedCity.value,
-          "accountType": selectedAccontType.value,
-          "tradingAs": selectedTradingAsCategory.value,
+          "neighbourhood": 'hq',
+          "city": 'hq',
+          "accountType": 'admin',
+          "tradingAs": 'admin',
         };
         update();
         Response<dynamic> response =
@@ -284,111 +243,6 @@ class AuthController extends MainController {
     return "register_controller";
   }
 
-  // WEB SOCKETS LISTENERS
-  connectAndListen() async {
-    // socket.connect();
-    socket.onConnect((_) async {
-      debugPrint('socket connected? ${socket.connected}');
-      // debugPrint('socket id ${socket.id}');
-      isonline.value = true;
-      socketID.value = socket.id!;
-      if (AuthService.isLoggedIn == true && socket.connected == true) {
-        socket.emit('get-providers', {
-          "senderID": person.value.userID.toString(),
-          "senderPhone": person.value.phone.toString(),
-        });
-        socket.emit('get-account-offer-items', {
-          "senderID": person.value.userID.toString(),
-          "senderPhone": person.value.phone.toString(),
-          "accountType": person.value.accountType.toString()
-        });
-        socket.emit('get-account-orders', {
-          "senderID": person.value.userID.toString(),
-          "senderPhone": person.value.phone.toString(),
-          "accountType": person.value.accountType.toString()
-        });
-      }
-    });
-
-    //When an event recieved from server, data is added to the stream
-    socket.on('update-online-status', (recievedData) async {
-      // debugPrint("update-online-status:  $recievedData");
-      var data = await jsonDecode(recievedData);
-      // debugPrint('update-online-status data["data"] ${data["socketID"]}');
-      if (data["socketID"] != null) {
-        isonline.value = true;
-        socketID.value = data["socketID"];
-      }
-    });
-
-    socket.on('order-request-accepted', (recievedData) async {
-      debugPrint("order-request-accepted recievedData:  $recievedData");
-      var data = await jsonDecode(recievedData);
-      // debugPrint('order-request-accepted $data["order"]');
-      var jsonDecodeOrder = await jsonDecode(data["order"]);
-      Order order = await Order.fromJson(jsonDecodeOrder);
-      await ordersController.processOrders(order);
-    });
-
-    socket.on('receive_message', (recievedData) {
-      debugPrint("Socket _socketCall recievedData:  $recievedData");
-
-      var data = jsonDecode(recievedData);
-      var msg = data['message'];
-      debugPrint("$msg");
-    });
-    socket.on('receive-providers', (recievedData) async {
-      isServerLive.value = true;
-      isonline.value = true;
-      // debugPrint("Socket receive_providers recievedData:  $recievedData");
-
-      var data = await jsonDecode(recievedData);
-      List jsonDecodedVendors = await jsonDecode(data['providers']);
-      // debugPrint('providers jsonDecode ${jsonDecodedVendors}');
-      // List jsonDecodedVendors = jsonDecodedData['data'];
-      if (jsonDecodedVendors.isNotEmpty) {
-        for (var req in jsonDecodedVendors) {
-          Provider vndor = await Provider.fromJson(req);
-          debugPrint("${vndor.provider.userID}");
-          var providerLoaded = providers.firstWhereOrNull(
-              (vendr) => vendr.provider.userID == vndor.provider.userID);
-          if (providerLoaded != null) {
-            providers[providers.indexWhere((vendr) =>
-                vendr.provider.userID == vndor.provider.userID)] = vndor;
-          } else {
-            providers.value = [...providers, vndor];
-            providers.refresh();
-          }
-        }
-      } else {
-        debugPrint('serviceRequest is empty');
-      }
-    });
-    socket.on('receive-account_orders', (recievedData) async {
-      // debugPrint("___________Socket receive account orders__________________");
-      var data = await jsonDecode(recievedData);
-      // debugPrint('order jsonDecode $data["order"]');
-      if (data["orders"] != null) {
-        var jsonDecodeOrders = await jsonDecode(data["orders"]);
-        for (var ord in jsonDecodeOrders) {
-          Order order = Order.fromJson(ord);
-          // debugPrint("order order orderID ${order.orderID}");
-          await ordersController.processOrders(order);
-        }
-      }
-    });
-
-    socket.on('receive-order-request', (recievedData) async {
-      debugPrint("__________Socket receive_order-request____________________");
-      var data = await jsonDecode(recievedData);
-      var jsonDecodeOrder = await jsonDecode(data["order"]);
-      Order order = Order.fromJson(jsonDecodeOrder);
-      // debugPrint("order order orderID ${order.orderID}");
-      await ordersController.processOrders(order);
-    });
-    socket.onDisconnect((_) => print('disconnect'));
-  }
-
   processUserData(ResponseBody responseBody) async {
     try {
       if (responseBody.status == 200) {
@@ -409,8 +263,8 @@ class AuthController extends MainController {
 
           AuthService.isLoggedIn = true;
           if (person.value.userID != null) {
-            await connectAndListen();
-            await changeOnlineState(true);
+            // await connectAndListen();
+            // await changeOnlineState(true);
           }
           if (person.value.accountType != 'admin') {
             Get.to(const ProviderDashboardPage());

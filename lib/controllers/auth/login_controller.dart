@@ -12,8 +12,8 @@ class LoginController extends MainController {
   late AuthController authController = Get.put(AuthController());
   bool showPassword = false, loading = false;
 
-  final String _dummyEmail = "admin@umojaxc.io";
-  final String _dummyPassword = "1234567";
+  final String _dummyEmail = "beetrootadmin@beetroot.com";
+  final String _dummyPassword = "beetrootadmin@beetroot.com";
 
   @override
   onInit() async {

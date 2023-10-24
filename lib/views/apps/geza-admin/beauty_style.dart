@@ -15,14 +15,14 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class ExhibitsPage extends StatefulWidget {
-  const ExhibitsPage({Key? key}) : super(key: key);
+class BeautyStylePage extends StatefulWidget {
+  const BeautyStylePage({Key? key}) : super(key: key);
 
   @override
-  State<ExhibitsPage> createState() => _ExhibitsPageState();
+  State<BeautyStylePage> createState() => _BeautyStylePageState();
 }
 
-class _ExhibitsPageState extends State<ExhibitsPage>
+class _BeautyStylePageState extends State<BeautyStylePage>
     with SingleTickerProviderStateMixin, UIMixin {
   late DiscoverController controller;
   late ProviderAdminController providerController;
@@ -277,7 +277,7 @@ class _ExhibitsPageState extends State<ExhibitsPage>
             children: [
               FxButton(
                 onPressed: () {
-                  providerController.goToCreatQuestionaire();
+                  providerController.goToCreatBeautyStyle();
                 },
                 elevation: 0,
                 padding: FxSpacing.xy(20, 16),
@@ -293,36 +293,12 @@ class _ExhibitsPageState extends State<ExhibitsPage>
                     ),
                     FxSpacing.width(8),
                     FxText.labelMedium(
-                      'add_questionaire'.tr().capitalizeWords,
+                      'add_beauty_style'.tr().capitalizeWords,
                       color: contentTheme.onPrimary,
                     ),
                   ],
                 ),
               ),
-              FxButton(
-                onPressed: () {
-                  providerController.goToAssignExhibitEditingTask();
-                },
-                elevation: 0,
-                padding: FxSpacing.xy(20, 16),
-                backgroundColor: contentTheme.primary,
-                borderRadiusAll: AppStyle.buttonRadius.medium,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.add_outlined,
-                      size: 20,
-                      color: contentTheme.onSecondary,
-                    ),
-                    FxSpacing.width(8),
-                    FxText.labelMedium(
-                      'assign_editor'.tr().capitalizeWords,
-                      color: contentTheme.onPrimary,
-                    ),
-                  ],
-                ),
-              )
             ],
           ),
           FxSpacing.height(20),
